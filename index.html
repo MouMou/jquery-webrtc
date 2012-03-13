@@ -3,15 +3,20 @@
 
 	<head>
 
-		<title>WebRTC - Plugin jQuery</title>
+    <title>WebRTC - Plugin jQuery</title>
 
-		 <!-- Stylesheet Ressources -->
-      	<link rel="stylesheet" href="css/bootstrap.css">
+    <!-- Stylesheet Ressources -->
+    <link rel="stylesheet" href="css/bootstrap.css">
 
-        <!-- JavaScript Ressources -->
-      	<script src="js/jquery-1.7.1.js" type="text/javascript" charset="utf-8"></script>
-      	<script src="js/bootstrap.js" type="text/javascript" charset="utf-8"></script>
-      	<script src="js/webrtc.js" type="text/javascript" charset="utf-8"></script>
+    <!-- JavaScript Ressources -->
+    <script src="js/jquery-1.7.1.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/bootstrap.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/webrtc.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+      $(function() {
+        $('#conversation').createWebrtc();
+      });
+    </script>
 
 	</head>
 
@@ -19,7 +24,7 @@
 		
 		<div class="container-fluid">
 
-			<div class="row-fluid">
+			<div id="conversation" class="row-fluid">
 
 				  <!-- Local Video -->
             <div class="span6">

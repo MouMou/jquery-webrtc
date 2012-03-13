@@ -19,15 +19,17 @@ if ( typeof Object.create !== 'function' ) {
 				? options
 				: options.search;*/
 
-			self.options = $.extend( {}, $.fn.createWebtc.options, options );
+			//self.options = $.extend( {}, $.fn.createWebtc.options, options );
 
 			console.log("Initializing");
 
-		    self.localVideo = $("#localVideo");
-		    self.remoteVideo = $("#remoteVideo");
+		    self.localVideo = self.$elem.find('#localVideo');
+		    self.remoteVideo = self.$elem.find('#remoteVideo');
+
+		    self.connection = null;
 		    
 		    self.openChannel();
-		    selfgetUserMedia();
+		    self.getUserMedia();
 		},
 
 		openChannel: function() {
@@ -36,16 +38,16 @@ if ( typeof Object.create !== 'function' ) {
 			self.connection = new WebSocket('ws://localhost:8080/');
 
 			// When the connection is open, send some data to the server
-			connection.onopen = self.onChannelOpened;
+			self.connection.onopen = self.onChannelOpened.call(self);
 
 			// Log errors
-			connection.onerror = function (error) {
+			self.connection.onerror = function (error) {
 			console.log('WebSocket Error ' + error);
 			}
 			// Log messages from the server
-			connection.onmessage = self.onChannelMessage;
+			self.connection.onmessage = self.onChannelMessage;
 
-			connection.onclose = self.onChannelClosed;
+			self.connection.onclose = self.onChannelClosed;
 		},
 
 		getUserMedia: function() {
@@ -127,14 +129,14 @@ if ( typeof Object.create !== 'function' ) {
 		    }
 		    else{
 		      self.message = JSON.stringify({"type" : "GETROOM", "value" : ""});
-		      self.console.log(self.message);
+		      console.log(self.message);
 		      self.connection.send(self.message);
 		      self.guest =0;
 		    }
 		    if (self.guest) self.maybeStart();
 		},
 
-		onChannelMessage = function(message) {
+		onChannelMessage: function(message) {
 		    var self = this;
 
 		    self.message = JSON.parse(message.data);
