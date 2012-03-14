@@ -1,44 +1,29 @@
-// Utility
-if ( typeof Object.create !== 'function' ) {
-	Object.create = function( obj ) {
-		function F() {};
-		F.prototype = obj;
-		return new F();
-	};
-}
+(function($){
+	$.webRtc = function(elem) {
+		var  self = this;
+		self.$elem = $(elem);
+		self.elem = elem;
 
-(function( $, window, document, undefined ) {
-	var Webrtc = {
-		init: function( options, elem ) {
-			var self = this;
 
-			self.elem = elem;
-			self.$elem = $( elem );
-
-			/*self.search = ( typeof options === 'string' )
-				? options
-				: options.search;*/
-
-			//self.options = $.extend( {}, $.fn.createWebtc.options, options );
-
+		self.init = function() {
 			console.log("Initializing");
 
 		    self.localVideo = self.$elem.find('#localVideo');
 		    self.remoteVideo = self.$elem.find('#remoteVideo');
 
 		    self.connection = null;
+		    self.pc = null;
 		    
 		    self.openChannel();
 		    self.getUserMedia();
-		},
+		};
 
-		openChannel: function() {
-			var self = this;
+		self.openChannel = function() {
 
 			self.connection = new WebSocket('ws://localhost:8080/');
 
 			// When the connection is open, send some data to the server
-			self.connection.onopen = self.onChannelOpened.call(self);
+			self.connection.onopen = self.onChannelOpened;
 
 			// Log errors
 			self.connection.onerror = function (error) {
@@ -48,20 +33,18 @@ if ( typeof Object.create !== 'function' ) {
 			self.connection.onmessage = self.onChannelMessage;
 
 			self.connection.onclose = self.onChannelClosed;
-		},
+		};
 
-		getUserMedia: function() {
-			var self = this;
+		self.getUserMedia = function() {
 			try { 
-				navigator.webkitGetUserMedia("video,audio", self.onUserMediaSuccess, self.onUserMediaError);
+				navigator.webkitGetUserMedia("video,audio", self.onUserMediaSuccess,self.onUserMediaError);
 				console.log("Requested access to local media.");
 			} catch (e) {
 				console.log("getUserMedia error.");
 			}
-		},
+		};
 
-		onUserMediaSuccess: function(stream) {
-			var self = this;
+		self.onUserMediaSuccess = function(stream) {
 
 		    console.log("User has granted access to local media.");
 		    var url = webkitURL.createObjectURL(stream);
@@ -69,62 +52,59 @@ if ( typeof Object.create !== 'function' ) {
 		    self.localVideo.attr("src", url);
 		    self.localStream = stream;
 		    if (self.guest) self.maybeStart();    
-		},
+		};
 
-		onUserMediaError: function(error) {
+		self.onUserMediaError = function(error) {
 		    console.log("Failed to get access to local media. Error code was " + error.code);
 		    alert("Failed to get access to local media. Error code was " + error.code + ".");    
-		},
+		};
 
-		maybeStart: function() {
-			var self = this;
-
+		self.maybeStart = function() {
 		    if (!self.started && self.localStream && self.channelReady) {      
 		        console.log("Creating PeerConnection.");
-		        createPeerConnection();  
+		        self.createPeerConnection();  
 		        console.log("Adding local stream.");      
-		        self.pc.addStream(localStream);
+		        self.pc.addStream(self.localStream);
 		        self.started = true;
 		    }
-		},
+		};
 
-		createPeerConnection: function() {
-			var self = this;
-
+		self.createPeerConnection = function() {
 		    self.pc = new webkitPeerConnection("NONE", self.onSignalingMessage);
 		    self.pc.onconnecting = self.onSessionConnecting;
 		    self.pc.onopen = self.onSessionOpened;
 		    self.pc.onaddstream = self.onRemoteStreamAdded;
 		    self.pc.onremovestream = self.onRemoteStreamRemoved;  
-		},
+		};
 
-		onSignalingMessage: function(message) {
+		self.onSignalingMessage = function(message) {
 		    console.log("onSignalingMessage " + message);
-		    this.message = JSON.stringify({"type" : "SDP", "value" : message})
-		    this.connection.send(this.message);
-		},
+		    self.message = JSON.stringify({"type" : "SDP", "value" : message})
+		    self.connection.send(self.message);
+		};
 
-		onHangup: function() {
-		    var self = this;
-
+		self.onHangup = function() {
 		    console.log("Hanging up.");
 		    self.localVideo.css("opacity", "0");    
 		    self.remoteVideo.css("opacity", "0");    
 		    self.pc.close();
 		    self.pc = null;
 		    self.connection.close();
-		},
+		};
 
-		onChannelOpened: function() {    
-		    var self = this;
-
+		self.onChannelOpened = function() { 
 		    console.log('Channel opened.');
 		    self.channelReady = true;
-		    if(location.search.substring(1,5) == "room") {
+		    self.setGuest();
+		    if (self.guest) self.maybeStart();
+		};
+
+		self.setGuest = function() {
+			if(location.search.substring(1,5) == "room") {
 		      self.room = location.search.substring(6);
-		      self.message = JSON.stringify({"type" : "INVITE", "value" : room});
+		      self.message = JSON.stringify({"type" : "INVITE", "value" : self.room});
 		      console.log(self.message);
-		      connection.send(self.message);
+		      self.connection.send(self.message);
 		      self.guest =1;
 		    }
 		    else{
@@ -133,11 +113,9 @@ if ( typeof Object.create !== 'function' ) {
 		      self.connection.send(self.message);
 		      self.guest =0;
 		    }
-		    if (self.guest) self.maybeStart();
-		},
+		}
 
-		onChannelMessage: function(message) {
-		    var self = this;
+		self.onChannelMessage = function(message) {
 
 		    self.message = JSON.parse(message.data);
 		    console.log('S->C: ' + self.message["value"]);
@@ -155,62 +133,53 @@ if ( typeof Object.create !== 'function' ) {
 		        }
 		      break;
 		    }
-		},
+		};
 
-		onChannelBye: function() {
-			var self = this;
-
+		self.onChannelBye = function() {
 		    console.log('Session terminated.');    
 		    self.remoteVideo.css("opacity", "0");
 		    //self.remoteVideo.attr("src",null);
 		    self.guest = 0;
 		    self.started = false;
-		},
+		};
 
-		onChannelError: function() {    
+		self.onChannelError = function() {    
 		    console.log('Channel error.');
-		},
+		};
 
-		onChannelClosed: function() {    
+		self.onChannelClosed = function() {    
 		    console.log('Channel closed.');
-		},
+		};
 
-		onSessionConnecting: function(message) {      
+		self.onSessionConnecting = function(message) {      
 		    console.log("Session connecting.");
-		},
+		};
 
-		onSessionOpened: function(message) {      
+		self.onSessionOpened = function(message) {      
 		    console.log("Session opened.");
-		},
+		};
 
 
-		onRemoteStreamAdded: function(event) {   
+		self.onRemoteStreamAdded = function(event) {   
 		    console.log("Remote stream added.");
 		    var url = webkitURL.createObjectURL(event.stream);
-		    this.remoteVideo.css("opacity", "1");
-		    this.remoteVideo.attr("src",url);
-		},
+		    self.remoteVideo.css("opacity", "1");
+		    self.remoteVideo.attr("src",url);
+		};
 
-		onRemoteStreamRemoved: function(event) {   
+		self.onRemoteStreamRemoved = function(event) {   
 		    console.log("Remote stream removed.");
-		}
+		};
+
+		self.init();
+
+		return self;
 	};
+
 
 	$.fn.createWebrtc = function( options ) {
 		return this.each(function() {
-			var webrtc = Object.create( Webrtc );
-			
-			webrtc.init( options, this );
+			(new $.webRtc(this));
 		});
 	};
-
-	/*$.fn.createWebrtc.options = {
-		search: '@tutspremium',
-		wrapEachWith: '<li></li>',
-		limit: 10,
-		refresh: null,
-		onComplete: null,
-		transition: 'fadeToggle'
-	};*/
-
-})( jQuery, window, document );
+})(jQuery);
