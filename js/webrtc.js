@@ -14,7 +14,6 @@
  */
 
 (function($){
-	$.webRtc = function(elem) {
 	$.webRtc = function(elem, options) {
 		var  self = this;
 		self.$elem = $(elem);
@@ -22,9 +21,6 @@
 
 		self.init = function() {
 			console.log("Initializing");
-
-		    self.localVideo = self.$elem.find('#localVideo');
-		    self.remoteVideo = self.$elem.find('#remoteVideo');
 			self.options = $.extend( {}, $.fn.createWebrtc.options, options );
 
 		    self.localVideo = self.$elem.find(self.options.localVideo);
@@ -36,7 +32,6 @@
 		};
 
 		self.openChannel = function() {
-			self.connection = new WebSocket('ws://localhost:8080/');
 			self.connection = new WebSocket(self.options.signallingServer);
 
 			// When the connection is open, send some data to the server
@@ -56,7 +51,6 @@
 
 		self.getUserMedia = function() {
 			try { 
-				navigator.webkitGetUserMedia("video,audio", self.onUserMediaSuccess,self.onUserMediaError);
 				navigator.webkitGetUserMedia(self.options.mediaParameters, self.onUserMediaSuccess,self.onUserMediaError);
 				console.log("Requested access to local media.");
 			} catch (e) {
@@ -90,7 +84,6 @@
 		};
 
 		self.createPeerConnection = function() {
-		    self.pc = new webkitPeerConnection("NONE", self.onSignalingMessage);
 		    self.pc = new webkitPeerConnection(self.options.serverStunTurn, self.onSignalingMessage);
 		    self.pc.onconnecting = self.onSessionConnecting;
 		    self.pc.onopen = self.onSessionOpened;
@@ -121,8 +114,6 @@
 
 		self.setGuest = function() {
 			var urlParameters = getUrlVars();
-			if(urlParameters["room"]) {
-		      self.room = urlParameters["room"];
 			if(urlParameters[self.options.urlParameters]) {
 		      self.room = urlParameters[self.options.urlParameters];
 		      self.sendMessage("INVITE", self.room)
@@ -216,7 +207,6 @@
 
 	$.fn.createWebrtc = function( options ) {
 		return this.each(function() {
-			(new $.webRtc(this));
 			(new $.webRtc(this, options));
 		});
 	};
