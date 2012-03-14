@@ -1,22 +1,30 @@
-////////////////////////////
-// Plugin jQuery - webRTC //
-////////////////////////////
+
+
+
+/** 
+	TODO :
+	- settings :
+				signalling server						-> default : http://
+				STUN/TURN config						-> default : NONE
+				url parameter 							-> default : room
+				onChannelMessage & sendMessage function -> default : 
+				local & remote 							-> default : #localVideo & #remoteVideo
+				status bar 								-> default : #status
+
+ */
 
 (function($){
-	$.webRtc = function(elem) {
+	$.webRtc = function(elem, options) {
 		var  self = this;
 		self.$elem = $(elem);
 		self.elem = elem;
 
 		self.init = function() {
 			console.log("Initializing");
+			self.options = $.extend( {}, $.fn.createWebrtc.options, options );
 
-			self.$elem.append(' <div class="span6"><h2 align="left">Local</h2><video width="100%" height="100%" id="localVideo" autoplay="autoplay" style="opacity: 0; -webkit-transition-property: opacity; -webkit-transition-duration: 2s;"></video></div>');
-
-			self.$elem.append(' <div class="span6"><h2 align="left">Remote</h2><video width="100%" height="100%" id="remoteVideo" autoplay="autoplay" style="opacity: 0; -webkit-transition-property: opacity; -webkit-transition-duration: 2s;"></video></div>');
-
-		    self.localVideo = self.$elem.find('#localVideo');
-		    self.remoteVideo = self.$elem.find('#remoteVideo');
+		    self.localVideo = self.$elem.find(self.options.localVideo);
+		    self.remoteVideo = self.$elem.find(self.options.remoteVideo);
 		    self.connection = null;
 		    self.pc = null;
 		    self.openChannel();
@@ -24,7 +32,7 @@
 		};
 
 		self.openChannel = function() {
-			self.connection = new WebSocket('ws://localhost:8080/');
+			self.connection = new WebSocket(self.options.signallingServer);
 
 			// When the connection is open, send some data to the server
 			self.connection.onopen = self.onChannelOpened;
@@ -43,7 +51,7 @@
 
 		self.getUserMedia = function() {
 			try { 
-				navigator.webkitGetUserMedia("video,audio", self.onUserMediaSuccess,self.onUserMediaError);
+				navigator.webkitGetUserMedia(self.options.mediaParameters, self.onUserMediaSuccess,self.onUserMediaError);
 				console.log("Requested access to local media.");
 			} catch (e) {
 				console.log("getUserMedia error.");
@@ -76,7 +84,7 @@
 		};
 
 		self.createPeerConnection = function() {
-		    self.pc = new webkitPeerConnection("NONE", self.onSignalingMessage);
+		    self.pc = new webkitPeerConnection(self.options.serverStunTurn, self.onSignalingMessage);
 		    self.pc.onconnecting = self.onSessionConnecting;
 		    self.pc.onopen = self.onSessionOpened;
 		    self.pc.onaddstream = self.onRemoteStreamAdded;
@@ -106,8 +114,8 @@
 
 		self.setGuest = function() {
 			var urlParameters = getUrlVars();
-			if(urlParameters["room"]) {
-		      self.room = urlParameters["room"];
+			if(urlParameters[self.options.urlParameters]) {
+		      self.room = urlParameters[self.options.urlParameters];
 		      self.sendMessage("INVITE", self.room)
 		      self.guest =1;
 		    }
@@ -199,7 +207,17 @@
 
 	$.fn.createWebrtc = function( options ) {
 		return this.each(function() {
-			(new $.webRtc(this));
+			(new $.webRtc(this, options));
 		});
+	};
+
+	$.fn.createWebrtc.options = {
+		localVideo: '#localVideo',
+		remoteVideo: '#remoteVideo',
+		status: '#status',
+		signallingServer: 'ws://localhost:8080',
+		serverStunTurn: 'NONE',
+		urlParameters : 'room',
+		mediaParameters: 'audio,video'
 	};
 })(jQuery);
