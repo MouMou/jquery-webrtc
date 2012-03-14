@@ -1,3 +1,7 @@
+////////////////////////////
+// Plugin jQuery - webRTC //
+////////////////////////////
+
 (function($){
 	$.webRtc = function(elem) {
 		var  self = this;
