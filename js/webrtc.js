@@ -4,22 +4,18 @@
 		self.$elem = $(elem);
 		self.elem = elem;
 
-
 		self.init = function() {
 			console.log("Initializing");
 
 		    self.localVideo = self.$elem.find('#localVideo');
 		    self.remoteVideo = self.$elem.find('#remoteVideo');
-
 		    self.connection = null;
 		    self.pc = null;
-		    
 		    self.openChannel();
 		    self.getUserMedia();
 		};
 
 		self.openChannel = function() {
-
 			self.connection = new WebSocket('ws://localhost:8080/');
 
 			// When the connection is open, send some data to the server
@@ -33,6 +29,8 @@
 			self.connection.onmessage = self.onChannelMessage;
 
 			self.connection.onclose = self.onChannelClosed;
+
+			$(window).unload(function(){ self.connection.close(); self.connection = null });
 		};
 
 		self.getUserMedia = function() {
@@ -78,9 +76,8 @@
 		};
 
 		self.onSignalingMessage = function(message) {
-		    console.log("onSignalingMessage " + message);
-		    self.message = JSON.stringify({"type" : "SDP", "value" : message})
-		    self.connection.send(self.message);
+		    //console.log("onSignalingMessage " + message);
+		    self.sendMessage("SDP", message);
 		};
 
 		self.onHangup = function() {
@@ -100,20 +97,36 @@
 		};
 
 		self.setGuest = function() {
-			if(location.search.substring(1,5) == "room") {
-		      self.room = location.search.substring(6);
-		      self.message = JSON.stringify({"type" : "INVITE", "value" : self.room});
-		      console.log(self.message);
-		      self.connection.send(self.message);
+			var urlParameters = getUrlVars();
+			if(urlParameters["room"]) {
+		      self.room = urlParameters["room"];
+		      self.sendMessage("INVITE", self.room)
 		      self.guest =1;
 		    }
 		    else{
-		      self.message = JSON.stringify({"type" : "GETROOM", "value" : ""});
-		      console.log(self.message);
-		      self.connection.send(self.message);
+		      self.sendMessage("GETROOM")
 		      self.guest =0;
 		    }
 		}
+
+		function getUrlVars()
+		{
+		    var vars = [], hash;
+		    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+		    for(var i = 0; i < hashes.length; i++)
+		    {
+		        hash = hashes[i].split('=');
+		        vars.push(hash[0]);
+		        vars[hash[0]] = hash[1];
+		    }
+		    return vars;
+		}
+
+		self.sendMessage = function(type, mess) {
+			if(!mess) mess = "";
+			var message = JSON.stringify({"type" : type, "value" : mess});
+			self.connection.send(message);
+		};
 
 		self.onChannelMessage = function(message) {
 
@@ -124,7 +137,6 @@
 		      case "GETROOM" :
 		        self.room = self.message["value"];
 		        console.log(self.room);
-		        self.guest = 0;
 		      break;
 		      case "SDP" :
 		        if (self.message["value"].indexOf("\"ERROR\"", 0) == -1) {
