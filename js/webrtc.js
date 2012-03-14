@@ -11,6 +11,10 @@
 		self.init = function() {
 			console.log("Initializing");
 
+			self.$elem.append(' <div class="span6"><h2 align="left">Local</h2><video width="100%" height="100%" id="localVideo" autoplay="autoplay" style="opacity: 0; -webkit-transition-property: opacity; -webkit-transition-duration: 2s;"></video></div>');
+
+			self.$elem.append(' <div class="span6"><h2 align="left">Remote</h2><video width="100%" height="100%" id="remoteVideo" autoplay="autoplay" style="opacity: 0; -webkit-transition-property: opacity; -webkit-transition-duration: 2s;"></video></div>');
+
 		    self.localVideo = self.$elem.find('#localVideo');
 		    self.remoteVideo = self.$elem.find('#remoteVideo');
 		    self.connection = null;
