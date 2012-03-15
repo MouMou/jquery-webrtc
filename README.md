@@ -21,7 +21,7 @@ You have to install
 
 ## Configuration
 
-Place a div element in your page with an id attribute (i.e <div id="#conversation"></div>)
+Place a div element in your page with an id attribute (i.e &lt;div id="#conversation"&gt;&lt;/div&gt;)
 Create a webrtc object like this : $('#conversation').createWebrtc();
 And that's it.
 
