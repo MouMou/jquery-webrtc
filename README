@@ -6,7 +6,7 @@ This prototype is only available for Chrome/Chromium with support WebRTC. This w
 
 You have to install 
 
-- a signaling server for webRTC (You can get the code source on GitHub : repository EWP)
+- a signaling server for webRTC (You can get the code source on GitHub : https://github.com/MouMou/EWP)
 - a HTTP server
 - Chrome or Chromium (please get the latest version of Chrome/Chromium Dev or Chrome Canary to avoid troubles and issues)
 
