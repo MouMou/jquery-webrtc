@@ -1,5 +1,6 @@
-
-
+////////////////////////////
+// Plugin jQuery - webRTC //
+////////////////////////////
 
 /** 
 	TODO :
@@ -21,10 +22,16 @@
 
 		self.init = function() {
 			console.log("Initializing");
+
+			// Plugin's options
 			self.options = $.extend( {}, $.fn.createWebrtc.options, options );
 
-		    self.localVideo = self.$elem.find(self.options.localVideo);
-		    self.remoteVideo = self.$elem.find(self.options.remoteVideo);
+			self.$elem.find(self.options.local).append('<video width="100%" height="100%" id="localVideo" autoplay="autoplay" style="opacity: 0; -webkit-transition-property: opacity; -webkit-transition-duration: 2s;"></video>');
+			self.$elem.find(self.options.remote).append('<video width="100%" height="100%" id="remoteVideo" autoplay="autoplay" style="opacity: 0; -webkit-transition-property: opacity; -webkit-transition-duration: 2s;"></video>');
+
+		    self.localVideo = self.$elem.find('#localVideo');
+		    self.remoteVideo = self.$elem.find('#remoteVideo');
+
 		    self.connection = null;
 		    self.pc = null;
 		    self.openChannel();
@@ -113,7 +120,7 @@
 		};
 
 		self.setGuest = function() {
-			var urlParameters = getUrlVars();
+			var urlParameters = self.getUrlVars();
 			if(urlParameters[self.options.urlParameters]) {
 		      self.room = urlParameters[self.options.urlParameters];
 		      self.sendMessage("INVITE", self.room)
@@ -125,8 +132,7 @@
 		    }
 		}
 
-		function getUrlVars()
-		{
+		self.getUrlVars = function() {
 		    var vars = [], hash;
 		    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
 		    for(var i = 0; i < hashes.length; i++)
@@ -153,6 +159,7 @@
 		      case "GETROOM" :
 		        self.room = self.message["value"];
 		        console.log(self.room);
+		        self.resetStatus();
 		      break;
 		      case "SDP" :
 		        if (self.message["value"].indexOf("\"ERROR\"", 0) == -1) {
@@ -162,6 +169,15 @@
 		      break;
 		    }
 		};
+
+		self.resetStatus = function() {
+		        self.setStatus("<div class=\"alert\">Waiting for someone to join: <a href=\""+window.location.href+"?"+self.options.urlParameters+"="+self.room+"\">"+window.location.href+"?"+self.options.urlParameters+"="+self.room+"</a></div>");
+		};
+
+		self.setStatus= function(state) {
+		    $(self.options.status).html(state);
+		};
+
 
 		self.onChannelBye = function() {
 		    console.log('Session terminated.');    
@@ -212,8 +228,8 @@
 	};
 
 	$.fn.createWebrtc.options = {
-		localVideo: '#localVideo',
-		remoteVideo: '#remoteVideo',
+		local: '#local',
+		remote: '#remote',
 		status: '#status',
 		signallingServer: 'ws://localhost:8080',
 		serverStunTurn: 'NONE',
