@@ -9,33 +9,62 @@
 				STUN/TURN config						-> default : NONE
 				url parameter 							-> default : room
 				onChannelMessage & sendMessage function -> default : 
-				local & remote 							-> default : #localVideo & #remoteVideo
+				local & remote 							-> default : #local & #remote
 				status bar 								-> default : #status
 
  */
 
 (function($){
 	$.webRtc = function(elem, options) {
+
+		// Variables Declaration //
 		var  self = this;
 		self.$elem = $(elem);
 		self.elem = elem;
 
+		self.video = function(idVideo) {
+			return $('<video></video>')
+						.attr({
+							width: "100%",
+							height: "100%",
+							id: idVideo,
+							autoplay: "autoplay"
+						})
+						.css({
+							opacity: "0",
+							"-webkit-transition-property": "opacity", 
+							"-webkit-transition-duration": "2s"
+						});
+		};
+
 		self.init = function() {
 			console.log("Initializing");
 
-			// Plugin's options
+			// Plugin's options //
 			self.options = $.extend( {}, $.fn.createWebrtc.options, options );
 
-			self.$elem.find(self.options.local).append('<video width="100%" height="100%" id="localVideo" autoplay="autoplay" style="opacity: 0; -webkit-transition-property: opacity; -webkit-transition-duration: 2s;"></video>');
-			self.$elem.find(self.options.remote).append('<video width="100%" height="100%" id="remoteVideo" autoplay="autoplay" style="opacity: 0; -webkit-transition-property: opacity; -webkit-transition-duration: 2s;"></video>');
+			self.localVideo = self.video("localVideo");
+			self.remoteVideo = self.video("remoteVideo");
 
-		    self.localVideo = self.$elem.find('#localVideo');
-		    self.remoteVideo = self.$elem.find('#remoteVideo');
+			self.$elem.find(self.options.local).append(self.localVideo);
+			self.$elem.find(self.options.remote).append(self.remoteVideo);
 
 		    self.connection = null;
 		    self.pc = null;
 		    self.openChannel();
 		    self.getUserMedia();
+		};
+
+		self.resetStatus = function() {
+			if (!self.guest) {
+		        self.setStatus("Waiting for someone to join: <a href=\""+window.location.href+"?"+self.options.urlParameters+"="+self.room+"\">"+window.location.href+"?"+self.options.urlParameters+"="+self.room+"</a>");
+			} else { 
+        		self.setStatus("Initializing...");
+        	}
+		};
+
+		self.setStatus= function(state) {
+		    $(self.options.status).html(state);
 		};
 
 		self.openChannel = function() {
@@ -81,7 +110,8 @@
 		};
 
 		self.maybeStart = function() {
-		    if (!self.started && self.localStream && self.channelReady) {      
+		    if (!self.started && self.localStream && self.channelReady) {  
+		    	self.setStatus("Connecting...");    
 		        console.log("Creating PeerConnection.");
 		        self.createPeerConnection();  
 		        console.log("Adding local stream.");      
@@ -99,7 +129,6 @@
 		};
 
 		self.onSignalingMessage = function(message) {
-		    //console.log("onSignalingMessage " + message);
 		    self.sendMessage("SDP", message);
 		};
 
@@ -110,6 +139,7 @@
 		    self.pc.close();
 		    self.pc = null;
 		    self.connection.close();
+		    self.setStatus("You have left the call."); 
 		};
 
 		self.onChannelOpened = function() { 
@@ -153,12 +183,10 @@
 		self.onChannelMessage = function(message) {
 
 		    self.message = JSON.parse(message.data);
-		    console.log('S->C: ' + self.message["value"]);
 
 		    switch(self.message["type"]) {
 		      case "GETROOM" :
 		        self.room = self.message["value"];
-		        console.log(self.room);
 		        self.resetStatus();
 		      break;
 		      case "SDP" :
@@ -167,17 +195,11 @@
 		          self.pc.processSignalingMessage(self.message["value"]);
 		        }
 		      break;
+		      case "BYE" :
+		        self.onChannelBye();
+		      break;
 		    }
 		};
-
-		self.resetStatus = function() {
-		        self.setStatus("<div class=\"alert\">Waiting for someone to join: <a href=\""+window.location.href+"?"+self.options.urlParameters+"="+self.room+"\">"+window.location.href+"?"+self.options.urlParameters+"="+self.room+"</a></div>");
-		};
-
-		self.setStatus= function(state) {
-		    $(self.options.status).html(state);
-		};
-
 
 		self.onChannelBye = function() {
 		    console.log('Session terminated.');    
@@ -185,6 +207,7 @@
 		    //self.remoteVideo.attr("src",null);
 		    self.guest = 0;
 		    self.started = false;
+		    self.setStatus("Your partner have left the call.");
 		};
 
 		self.onChannelError = function() {    
@@ -209,6 +232,8 @@
 		    var url = webkitURL.createObjectURL(event.stream);
 		    self.remoteVideo.css("opacity", "1");
 		    self.remoteVideo.attr("src",url);
+		    self.setStatus("Is currently in video conference.<br><button id=\"hangup\">Hang Up</button>");
+		    $('#hangup').on('click', self.onHangup);
 		};
 
 		self.onRemoteStreamRemoved = function(event) {   
