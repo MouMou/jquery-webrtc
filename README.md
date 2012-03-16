@@ -23,8 +23,23 @@ You have to install
 
 Place a div element in your page with an id attribute (i.e &lt;div id="#conversation"&gt;&lt;/div&gt;)
 
-Create a webrtc object like this : $('#conversation').createWebrtc();
+Create a webrtc object like this : 
+	$('#conversation').createWebrtc();  
 And that's it.
+
+You can configure though several options :
+
+	$('#conversation').createWebrtc({
+    	local: '#customLocalVideo',
+    	remote: '#customRemoteVideo',
+    	status: '#customStatus',
+    	signallingServer: 'ws://yourserver:port',
+		serverStunTurn: 'addressofyourserver',
+		urlParameters : 'room',
+		mediaParameters: 'audio,video' 
+    });
+
+
 
 # Credits
 
