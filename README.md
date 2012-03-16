@@ -1,6 +1,8 @@
 # Plugin jQuery - webRTC
 
-This prototype is only available for Chrome/Chromium with support WebRTC. This web application include en plugin jQuery for the webRTC and allow you to video chat with someone else by sharing a single link. 
+This plugin is a part of a project developed by Clément Mouret and Luc Tribolet during an internship at Atos Worldline.
+
+It is only available for Chrome/Chromium with support WebRTC. This web application includes a jQuery plugin for the webRTC and allows you to video chat with someone else by sharing a single link. 
 
 ## Requirements
 
@@ -24,7 +26,9 @@ You have to install
 Place a div element in your page with an id attribute (i.e &lt;div id="#conversation"&gt;&lt;/div&gt;)
 
 Create a webrtc object like this : 
-	$('#conversation').createWebrtc();  
+
+	$('#conversation').createWebrtc(); 
+
 And that's it.
 
 You can configure though several options :
