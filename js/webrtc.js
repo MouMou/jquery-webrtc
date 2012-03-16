@@ -84,7 +84,10 @@
 		};
 
 		self.createPeerConnection = function() {
-		    self.pc = new webkitPeerConnection(self.options.serverStunTurn, self.onSignalingMessage);
+			if(typeof webkitPeerConnection === 'function')
+		    	self.pc = new webkitPeerConnection(self.options.serverStunTurn, self.onSignalingMessage);
+		    else
+		    	self.pc = new webkitDeprecatedPeerConnection(self.options.serverStunTurn, self.onSignalingMessage);
 		    self.pc.onconnecting = self.onSessionConnecting;
 		    self.pc.onopen = self.onSessionOpened;
 		    self.pc.onaddstream = self.onRemoteStreamAdded;
