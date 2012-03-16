@@ -22,24 +22,11 @@
 		self.$elem = $(elem);
 		self.elem = elem;
 
-		self.video = function(idVideo) {
-			return $('<video></video>')
-						.attr({
-							width: "100%",
-							height: "100%",
-							id: idVideo,
-							autoplay: "autoplay"
-						})
-						.css({
-							opacity: "0",
-							"-webkit-transition-property": "opacity", 
-							"-webkit-transition-duration": "2s"
-						});
-		};
-
 		self.init = function() {
 			console.log("Initializing");
 
+			
+			
 			// Plugin's options //
 			self.options = $.extend( {}, $.fn.createWebrtc.options, options );
 
@@ -53,6 +40,21 @@
 		    self.pc = null;
 		    self.openChannel();
 		    self.getUserMedia();
+		};
+
+		self.video = function(idVideo) {
+			return $('<video></video>')
+						.attr({
+							width: "100%",
+							height: "100%",
+							id: idVideo,
+							autoplay: "autoplay"
+						})
+						.css({
+							opacity: "0",
+							"-webkit-transition-property": "opacity", 
+							"-webkit-transition-duration": "2s"
+						});
 		};
 
 		self.resetStatus = function() {

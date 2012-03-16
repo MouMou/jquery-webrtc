@@ -16,11 +16,7 @@
     <!-- Plugin jQuery - webRTC -->
     <script type="text/javascript">
       $(function() {
-          $('#conversation').createWebrtc({
-            local: '#proutlocal',
-            remote: '#proutremote',
-            status: '#proutstatus'  
-          });
+          $('#conversation').createWebrtc();
       });
     </script>
 
@@ -35,14 +31,14 @@
 				  <!-- Local Video -->
             <div class="span6">
                 <h2 align="left">Local</h2>
-                <div id="proutlocal"></div>
+                <div id="local"></div>
             </div>
           <!-- End of Local Video -->
 
           <!-- Remote Video -->
             <div class="span6">
                 <h2 align="left">Remote</h2>
-                <div id="proutremote"></div>
+                <div id="remote"></div>
             </div>
           <!-- End of Remote Video -->
 
@@ -51,7 +47,7 @@
 		</div>
 
     <div class="row-fluid">
-      <center><div id="proutstatus"></div></center>
+      <center><div id="status"></div></center>
     </div>
 
 	</body>
