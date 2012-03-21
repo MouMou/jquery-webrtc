@@ -290,7 +290,6 @@ if ( typeof Object.create !== 'function' ) {
 	$.fn.createWebrtc = function( options ) {
 		return this.each(function() {
 			var webrtc = Object.create( Webrtc );
-			console.log(webrtc);
 			webrtc.init( options, this );
 			$.data( this, 'webrtc', webrtc );
 		});
