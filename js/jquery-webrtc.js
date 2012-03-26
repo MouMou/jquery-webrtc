@@ -80,6 +80,7 @@ if ( typeof Object.create !== 'function' ) {
 
 			var self = this;
 
+			// if you aren't the guest it provides you a link to invite someone in the status
 			if (!self.guest) {
 		        self.setStatus("Waiting for someone to join: <a href=\""+window.location.href+"?"+self.options.urlParameters+"="+self.room+"\">"+window.location.href+"?"+self.options.urlParameters+"="+self.room+"</a>");
 			} else { 
@@ -289,6 +290,7 @@ if ( typeof Object.create !== 'function' ) {
 
 		    self.channelReady = true;
 		    self.setGuest();
+
 		    if (self.guest) self.maybeStart();
 
 		    console.log('Channel opened.');
@@ -345,7 +347,8 @@ if ( typeof Object.create !== 'function' ) {
 			var self = this;
 
 			if(!mess) mess = "";
-			var message = JSON.stringify({"type" : type, "value" : mess});
+				var message = JSON.stringify({"type" : type, "value" : mess});
+			
 			self.connection.send(message);
 
 		},
