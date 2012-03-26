@@ -116,7 +116,7 @@ if ( typeof Object.create !== 'function' ) {
 			}
 
 			self.connection.onerror = function (error) {
-				console.log('WebSocket Error ' + error);
+				console.log("WebSocket Error " + error);
 			}
 
 			self.connection.onmessage = function() {
@@ -293,7 +293,7 @@ if ( typeof Object.create !== 'function' ) {
 
 		    if (self.guest) self.maybeStart();
 
-		    console.log('Channel opened.');
+		    console.log("Channel opened.");
 
 		},
 
@@ -324,10 +324,10 @@ if ( typeof Object.create !== 'function' ) {
 		getUrlVars: function() {
 
 		    var vars = [], hash;
-		    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+		    var hashes = window.location.href.slice(window.location.href.indexOf("?") + 1).split("&");
 
 		    for(var i = 0; i < hashes.length; i++) {
-		        hash = hashes[i].split('=');
+		        hash = hashes[i].split("=");
 		        vars.push(hash[0]);
 		        vars[hash[0]] = hash[1];
 		    }
@@ -399,7 +399,7 @@ if ( typeof Object.create !== 'function' ) {
 
 		    self.setStatus("Your partner have left the call.");
 
-		    console.log('Session terminated.'); 
+		    console.log("Session terminated."); 
 
 		},
 
@@ -409,7 +409,7 @@ if ( typeof Object.create !== 'function' ) {
 		 */
 		onChannelError: function() { 
 
-		    console.log('Channel error.');
+		    console.log("Channel error.");
 
 		},
 
@@ -419,7 +419,7 @@ if ( typeof Object.create !== 'function' ) {
 		 */
 		onChannelClosed: function() {    
 
-		    console.log('Channel closed.');
+		    console.log("Channel closed.");
 
 		},
 
@@ -486,7 +486,7 @@ if ( typeof Object.create !== 'function' ) {
 		return this.each(function() {
 			var webrtc = Object.create( Webrtc );
 			webrtc.init( options, this );
-			$.data( this, 'webrtc', webrtc );
+			$.data( this, "webrtc", webrtc );
 		});
 
 	};
@@ -496,13 +496,13 @@ if ( typeof Object.create !== 'function' ) {
 	 */
 	$.fn.createWebrtc.options = {
 
-		local: '#local',
-		remote: '#remote',
-		status: '#status',
-		signallingServer: 'ws://localhost:8080',
-		serverStunTurn: 'NONE',
-		urlParameters : 'room',
-		mediaParameters: 'audio,video'
+		local: "#local",
+		remote: "#remote",
+		status: "#status",
+		signallingServer: "ws://localhost:8080",
+		serverStunTurn: "NONE",
+		urlParameters : "room",
+		mediaParameters: "audio,video"
 
 	};
 
