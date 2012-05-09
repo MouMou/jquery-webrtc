@@ -14,6 +14,15 @@
 
  */
 
+// Utility
+if ( typeof Object.create !== 'function' ) {
+	Object.create = function( obj ) {
+		function F() {};
+		F.prototype = obj;
+		return new F();
+	};
+}
+
 (function($){
 	$.webRtc = function(elem, options) {
 
@@ -253,7 +262,7 @@
 
 	$.fn.createWebrtc = function( options ) {
 		return this.each(function() {
-			(new $.webRtc(this, options));
+			var webrtc = Object.create( $.webRtc(this, options) );
 		});
 	};
 
