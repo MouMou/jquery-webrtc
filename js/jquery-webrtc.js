@@ -145,12 +145,26 @@ if ( typeof Object.create !== 'function' ) {
 				self.onUserMediaError(error);
 			};
 
-			try { 
-				navigator.webkitGetUserMedia(self.options.mediaParameters,mediaSuccess,mediaError);
-				console.log("Requested access to local media.");
-			} catch (e) {
-				console.log("getUserMedia error.");
-			}
+			try {
+		      navigator.webkitGetUserMedia({audio:self.options.mediaParametersAudio, video:self.options.mediaParametersVideo}, mediaSuccess, mediaError);
+		      console.log("Requested access to local media with new syntax.");
+		    } catch (e) {
+		      try {
+
+		      	var mediaParam = new Array();
+
+		      	if(self.options.mediaParametersVideo) mediaParam.push("video");
+		      	if(self.options.mediaParametersAudio) mediaParam.push("audio");
+
+		      	mediaParam = mediaParam.join(",");
+
+		        navigator.webkitGetUserMedia(mediaParam, mediaSuccess, mediaError);
+		        console.log("Requested access to local media with old syntax.");
+		      } catch (e) {
+		        alert("webkitGetUserMedia() failed. Is the MediaStream flag enabled in about:flags?");
+		        console.log("webkitGetUserMedia failed with exception: " + e.message);
+		      }
+		    }
 
 		},
 
@@ -502,7 +516,8 @@ if ( typeof Object.create !== 'function' ) {
 		signallingServer: "ws://localhost:8080",
 		serverStunTurn: "NONE",
 		urlParameters : "room",
-		mediaParameters: "audio,video"
+		mediaParametersAudio: true,
+		mediaParametersVideo: true
 
 	};
 
