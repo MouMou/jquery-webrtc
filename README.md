@@ -40,7 +40,8 @@ You can configure though several options :
     	signallingServer: 'ws://yourserver:port',
 		serverStunTurn: 'addressofyourserver',
 		urlParameters : 'room',
-		mediaParameters: 'audio,video' 
+		mediaParametersAudio: true,
+		mediaParametersVideo: true
     });
 
 
